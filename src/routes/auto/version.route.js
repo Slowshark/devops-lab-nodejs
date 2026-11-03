@@ -1,6 +1,7 @@
 /**
  * GET /version → { version: "<package.json version>" }
  * Reads version from package.json to keep it source-of-truth.
+ * package.json is read once at startup instead of on every request.
  */
 import { Router } from 'express'
 import fs from 'node:fs'
@@ -10,12 +11,13 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.json'), 'utf-8')
+)
+
 const router = Router()
 
 router.get('/version', (_req, res) => {
-  const pkg = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.json'), 'utf-8')
-  )
   res.status(200).json({ version: pkg.version })
 })
 
