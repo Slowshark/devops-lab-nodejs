@@ -1,18 +1,33 @@
-# DevOps Lab – Student Project (Node.js + Jira/GitHub + CI/CD)
+# DevOps Lab – Projet étudiant (Node.js + Jira/GitHub + CI/CD)
 
-This repository is a **teaching template** for a 4-student DevOps mini-project.
-It demonstrates a realistic workflow: **PLAN (Jira) → CODE (Git/VS Code) → BUILD/TEST (GitHub Actions) → REVIEW (PRs) → DEPLOY (optional)**.
+![CI](https://github.com/Slowshark/devops-lab-nodejs/actions/workflows/ci.yml/badge.svg)
 
-> **What you get here**
-> - Minimal **Express** API with auto-mounted routes
-> - **Vitest + Supertest** for integration & unit tests
-> - Coverage thresholds enforced in CI
-> - **GitHub Actions** workflow for lint + tests + coverage artifact
-> - Clear file layout for a team of 4
+Ce dépôt est le **projet du TD 3** du cours DevOps & Software Engineering (ESILV, 2026/2027).
+Il reproduit un workflow DevOps réaliste : **PLAN (Jira) → CODE (Git/VS Code) → BUILD/TEST (GitHub Actions) → REVIEW (PR) → DEPLOY (optionnel)**.
+
+> **Contenu du projet**
+> - API **Express** minimale avec des routes montées automatiquement
+> - **Vitest + Supertest** pour les tests d'intégration et unitaires
+> - Seuils de couverture imposés par la CI
+> - Workflow **GitHub Actions** : lint + tests + artefact de couverture
+> - Organisation des fichiers claire pour une équipe de 4
 
 ---
 
-## Quickstart
+## Équipe et répartition
+
+| Étudiant | Membre | Story Jira | Fichier |
+|---|---|---|---|
+| A | ung Yvanthivong | DEVOPS-1 – endpoint `/version` | `src/routes/auto/version.route.js` |
+| B | Wang Félix | DEVOPS-2 – endpoint `/info` | `src/routes/auto/info.route.js` |
+| C | KELES Kerem | DEVOPS-3 – endpoint `/boom` | `src/routes/auto/boom.route.js` |
+| D | ung Yvanthivong | DEVOPS-4 – utilitaire `formatStatus()` | `src/utils/status.js` |
+
+Suivi du projet : Jira, projet **DevOps Lab Node.js Project** (clé `DEVOPS`).
+
+---
+
+## Démarrage rapide
 
 ```bash
 npm ci
@@ -20,79 +35,75 @@ npm run dev          # http://localhost:3000
 npm test -- --coverage
 ```
 
-Open `coverage/index.html` for a visual coverage report (locally).
+Ouvrez `coverage/index.html` pour voir le rapport de couverture en local.
+
+> Sous Windows, évitez les caractères spéciaux comme `&` dans le chemin du dossier : ils empêchent les scripts `npm run …` de fonctionner.
 
 ---
 
 ## Routes
 
-- `GET /` – basic JSON greeting
-- `GET /health` – health check (200 OK)
-- `GET /version` – returns `{ version }` from `package.json`
-- `GET /info` – returns `{ name, version, node, uptime }`
-- `GET /boom` – triggers an error to test the global error handler
+- `GET /` – message d'accueil en JSON
+- `GET /health` – vérification de l'état du service (200 OK)
+- `GET /version` – retourne `{ version }` lu dans `package.json`
+- `GET /info` – retourne `{ name, version, node, uptime }`
+- `GET /boom` – déclenche une erreur pour tester le gestionnaire d'erreurs global
 
-Routes are **auto-mounted** from `src/routes/auto/*.route.js` so each student can add a file without touching `src/app.js` (fewer merge conflicts).
+Les routes sont **montées automatiquement** depuis `src/routes/auto/*.route.js` : chaque étudiant peut ajouter son fichier sans modifier `src/app.js` (moins de conflits de fusion).
 
 ---
 
 ## Tests
 
-- **Integration tests** (Supertest) target HTTP endpoints in `test/*.test.js`.
-- **Unit tests** target internal logic in `test/unit/*.test.js`.
+- **Tests d'intégration** (Supertest) : ils appellent les endpoints HTTP, dans `test/*.test.js`.
+- **Tests unitaires** : ils testent la logique interne, dans `test/unit/*.test.js`.
 
-Coverage thresholds (Lines/Functions/Statements ≥ 80%, Branches ≥ 70%) are set in `package.json`.  
-If coverage drops below thresholds, CI fails and blocks the merge (quality gate).
+Seuils de couverture : lignes / fonctions / instructions ≥ 80 %, branches ≥ 70 % (définis dans `vitest.config.js`).
+Si la couverture passe sous ces seuils, la CI échoue et bloque la fusion (quality gate).
 
 ---
 
-## Branch & Commit Convention (Jira-friendly)
+## Conventions de branches et de commits (liées à Jira)
 
-- Branch: `feature/<ISSUE-KEY>-<short-desc>` → e.g., `feature/SHMS-12-info-endpoint`
-- Commit: `feat(<ISSUE-KEY>): <what>` → e.g., `feat(SHMS-12): implement /info endpoint`
-- PR title: `<ISSUE-KEY> | <title>` → e.g., `SHMS-12 | Add /info endpoint`
+- Branche : `feature/<CLÉ-TICKET>-<description-courte>` → ex. `feature/DEVOPS-1-version-endpoint`
+- Commit : `feat(<CLÉ-TICKET>): <quoi>` → ex. `feat(DEVOPS-1): read package.json once for /version endpoint`
+- Titre de PR : `<CLÉ-TICKET> | <titre>` → ex. `DEVOPS-1 | Implement /version endpoint`
 
-If you install **GitHub for Jira**, issues will link automatically when the key appears in branch/commit/PR.
+Grâce à l'application **GitHub for Atlassian**, les branches, commits, PR et builds qui contiennent la clé du ticket apparaissent automatiquement dans le panneau *Development* du ticket Jira.
+
+Règle d'équipe : chaque PR est relue par un autre membre et n'est fusionnée que si la CI est verte.
 
 ---
 
 ## CI (GitHub Actions)
 
-A workflow is included at `.github/workflows/ci.yml` that runs on pushes and PRs to `main`:
+Le workflow `.github/workflows/ci.yml` s'exécute à chaque push et à chaque PR vers `main` :
 
-- Install Node and deps
+- Installation de Node et des dépendances (`npm ci`)
 - `npm run lint`
 - `npm test -- --coverage`
-- Upload `coverage/` as an artifact
-
-> Badge (enable after first run):
->
-> ```md
-> ![CI](https://github.com/<org>/<repo>/actions/workflows/ci.yml/badge.svg)
-> ```
+- Dépôt du dossier `coverage/` comme artefact téléchargeable
 
 ---
 
-## Project layout
+## Organisation du projet
 
 ```
 src/
-  app.js          # Express app (auto-mount + global error handler)
-  index.js        # server entry (not used by tests)
-  routes/auto/    # students add *.route.js files here
-  utils/          # small testable helpers
+  app.js          # application Express (montage auto + gestionnaire d'erreurs global)
+  index.js        # point d'entrée du serveur (non utilisé par les tests)
+  routes/auto/    # les étudiants ajoutent ici leurs fichiers *.route.js
+  utils/          # petites fonctions utilitaires testables
 test/
-  *.test.js       # integration (HTTP) tests
-  unit/*.test.js  # pure unit tests
+  *.test.js       # tests d'intégration (HTTP)
+  unit/*.test.js  # tests unitaires
 ```
 
 ---
 
-## Useful scripts
+## Scripts utiles
 
-- `npm run dev` – start dev server with nodemon
-- `npm test` – run all tests (Vitest)
-- `npm test -- --coverage` – with coverage
-- `npm run lint` – ESLint check
-
-Enjoy the lab!
+- `npm run dev` – lance le serveur de développement avec nodemon
+- `npm test` – exécute tous les tests (Vitest)
+- `npm test -- --coverage` – idem, avec la couverture
+- `npm run lint` – vérification ESLint
